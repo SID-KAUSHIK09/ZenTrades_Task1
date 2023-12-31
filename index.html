@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Table</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<button onclick="fetchAndDisplayTable()">Show Table</button>
+<div id="tableContainer"></div>
+
+<script>
+    function fetchAndDisplayTable() {
+        const url = "https://s3.amazonaws.com/open-to-cors/assignment.json";
+        const tableContainer = document.getElementById('tableContainer');
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if ('products' in data) {
+                    const sortedProducts = Object.values(data['products']).sort((a, b) => b['popularity'] - a['popularity']);
+                    const table = document.createElement('table');
+                    table.innerHTML = `
+                        <tr>
+                            <th>Subcategory</th>
+                            <th>Title</th>
+                            <th>Price</th>
+                            <th>Popularity</th>
+                        </tr>
+                    `;
+
+                    sortedProducts.forEach(product => {
+                        const row = table.insertRow();
+                        row.innerHTML = `
+                            <td>${product['subcategory']}</td>
+                            <td>${product['title']}</td>
+                            <td>${product['price']}</td>
+                            <td>${product['popularity']}</td>
+                        `;
+                    });
+                    tableContainer.innerHTML = '';
+                    tableContainer.appendChild(table);
+                } else {
+                    tableContainer.innerHTML = 'Error: \'products\' key not found in the JSON data.';
+                }
+            })
+            .catch(error => {
+                tableContainer.innerHTML = `Error: ${error.message}`;
+            });
+    }
+</script>
+
+</body>
+</html>
